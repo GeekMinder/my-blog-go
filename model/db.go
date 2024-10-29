@@ -26,5 +26,16 @@ func InitDB() {
 		os.Exit(1)
 	}
 
+	// 自动迁移
+	err = db.AutoMigrate(
+		// 文章
+		&Article{},
+		// 分类
+		&Category{},
+	)
+	if err != nil {
+		panic("自动迁移失败: " + err.Error())
+	}
+
 	fmt.Println("数据库连接成功")
 }
