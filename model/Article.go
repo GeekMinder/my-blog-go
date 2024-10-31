@@ -35,14 +35,12 @@ func GetArticleList(pageSize int, pageNum int) ([]Article, int, int64) {
 	var articleList []Article
 	var err error
 	var total int64
-
-	err = db.Select("article.id, title, `desc`, create_at, updated_at," +
-		"view_count, like_count, comment_count, " +
-		"category_id, category.name").
+	err = db.Preload("Categories", func(db *gorm.DB) *gorm.DB {
+		return db.Select("id", "name")
+	}).
 		Limit(pageSize).
 		Offset((pageNum - 1) * pageSize).
-		Order("create_at DESC").
-		Joins("Category").
+		Order("created_at DESC").
 		Find(&articleList).Error
 	db.Model(&Article{}).Count(&total)
 	if err != nil {
@@ -91,4 +89,13 @@ func CreateArticle(data *ArticleCreate) int {
 		return msg.ERROR
 	}
 	return msg.SUCCESS
+}
+
+// 获取单一文章
+func GetArticle(id uint) (Article, int) {
+	var article Article
+	if err := db.Preload("Categories").First(&article, id).Error; err != nil {
+		return article, msg.ERROR
+	}
+	return article, msg.SUCCESS
 }

@@ -27,12 +27,22 @@ func GetArticleList(c *gin.Context) {
 	}
 
 	data, code, total := model.GetArticleList(pageSize, pageNum)
-	c.JSON(http.StatusOK, gin.H{
-		"data":    data,
-		"total":   total,
-		"message": msg.GetMsg(code),
-		"code":    code,
-	})
+	if code == msg.ERROR {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"data":    nil,
+			"total":   0,
+			"message": msg.GetMsg(code),
+			"code":    code,
+		})
+	} else {
+
+		c.JSON(http.StatusOK, gin.H{
+			"data":    data,
+			"total":   total,
+			"message": msg.GetMsg(code),
+			"code":    code,
+		})
+	}
 
 }
 
@@ -43,17 +53,33 @@ func CreateArticle(c *gin.Context) {
 
 	code := model.CreateArticle(&data)
 	if code == msg.ERROR {
-		c.JSON(http.StatusOK, gin.H{
+		c.JSON(http.StatusInternalServerError, gin.H{
 			"status":  code,
-			"data":    data,
 			"message": msg.GetMsg(code),
 		})
 	} else {
 		c.JSON(http.StatusOK, gin.H{
 			"status":  code,
+			"message": msg.GetMsg(code),
+		})
+	}
+}
+
+// 获取单一文章
+func GetArticle(c *gin.Context) {
+	id, _ := strconv.Atoi(c.Param("id"))
+	data, code := model.GetArticle(uint(id))
+	if code == msg.ERROR {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    code,
+			"data":    nil,
+			"message": msg.GetMsg(code),
+		})
+	} else {
+		c.JSON(http.StatusOK, gin.H{
+			"code":    code,
 			"data":    data,
 			"message": msg.GetMsg(code),
 		})
 	}
-
 }

@@ -19,14 +19,12 @@ func CreateCategory(c *gin.Context) {
 		code := model.CreateCategory(&data)
 		if code == msg.SUCCESS {
 			c.JSON(http.StatusOK, gin.H{
-				"status":  code,
-				"data":    msg.GetMsg(msg.SUCCESS),
+				"code":    code,
 				"message": msg.GetMsg(msg.SUCCESS),
 			})
 		} else {
 			c.JSON(http.StatusInternalServerError, gin.H{
-				"status":  code,
-				"data":    msg.GetMsg(msg.ERROR),
+				"code":    code,
 				"message": msg.GetMsg(msg.ERROR),
 			})
 		}
@@ -34,16 +32,14 @@ func CreateCategory(c *gin.Context) {
 		// 存在就返回已存在
 	case msg.ERROR_CATEGORY_EXIST:
 		c.JSON(http.StatusOK, gin.H{
-			"status":  isOk,
-			"data":    msg.GetMsg(msg.ERROR_CATEGORY_EXIST),
+			"code":    isOk,
 			"message": msg.GetMsg(msg.ERROR_CATEGORY_EXIST),
 		})
 
 		// 其他错误 就返回操作失败
 	case msg.ERROR:
 		c.JSON(http.StatusOK, gin.H{
-			"status":  isOk,
-			"data":    msg.GetMsg(msg.ERROR),
+			"code":    isOk,
 			"message": msg.GetMsg(msg.ERROR),
 		})
 	}
@@ -59,20 +55,18 @@ func EditCategory(c *gin.Context) {
 		code := model.EditCategory(data.ID, data.Name)
 		if code == msg.SUCCESS {
 			c.JSON(http.StatusOK, gin.H{
-				"status":  code,
-				"data":    "修改" + msg.GetMsg(msg.SUCCESS),
+				"code":    code,
 				"message": "修改" + msg.GetMsg(msg.SUCCESS),
 			})
 		} else {
 			c.JSON(http.StatusInternalServerError, gin.H{
-				"status":  code,
-				"data":    "修改" + msg.GetMsg(msg.ERROR),
+				"code":    code,
 				"message": "修改" + msg.GetMsg(msg.ERROR),
 			})
 		}
 	} else {
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"status":  isOk,
+			"code":    isOk,
 			"data":    "修改" + msg.GetMsg(msg.ERROR),
 			"message": "修改" + msg.GetMsg(msg.ERROR),
 		})
@@ -89,22 +83,40 @@ func DeleteCategory(c *gin.Context) {
 		code := model.DeleteCategory(data.ID)
 		if code == msg.SUCCESS {
 			c.JSON(http.StatusOK, gin.H{
-				"status":  code,
-				"data":    "删除" + msg.GetMsg(msg.SUCCESS),
+				"code":    code,
 				"message": "删除" + msg.GetMsg(msg.SUCCESS),
 			})
 		} else {
 			c.JSON(http.StatusInternalServerError, gin.H{
-				"status":  code,
-				"data":    "删除" + msg.GetMsg(msg.ERROR),
+				"code":    code,
 				"message": "删除" + msg.GetMsg(msg.ERROR),
 			})
 		}
 	} else {
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"status":  isOk,
+			"code":    isOk,
 			"data":    "删除" + msg.GetMsg(msg.ERROR),
 			"message": "删除" + msg.GetMsg(msg.ERROR),
+		})
+	}
+}
+
+// 获取所有分类
+func GetCategory(c *gin.Context) {
+	data, code, total := model.GetCategory()
+	if code == msg.SUCCESS {
+		c.JSON(http.StatusOK, gin.H{
+			"code":    code,
+			"data":    data,
+			"total":   total,
+			"message": msg.GetMsg(code),
+		})
+	} else {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    code,
+			"data":    nil,
+			"total":   0,
+			"message": msg.GetMsg(code),
 		})
 	}
 }
