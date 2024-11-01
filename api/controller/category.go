@@ -75,12 +75,14 @@ func EditCategory(c *gin.Context) {
 
 // 删除category
 func DeleteCategory(c *gin.Context) {
-	var data model.Category
-	_ = c.ShouldBindJSON(&data)
-	isOk, _ := model.CheckCategoryById(data.ID)
+	var deleteReqBody struct {
+		Id uint `json:"id"`
+	}
+	_ = c.ShouldBindJSON(&deleteReqBody)
+	isOk, _ := model.CheckCategoryById(deleteReqBody.Id)
 	// 如果找到了 就删
 	if isOk == msg.SUCCESS {
-		code := model.DeleteCategory(data.ID)
+		code := model.DeleteCategory(deleteReqBody.Id)
 		if code == msg.SUCCESS {
 			c.JSON(http.StatusOK, gin.H{
 				"code":    code,

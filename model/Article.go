@@ -99,3 +99,38 @@ func GetArticle(id uint) (Article, int) {
 	}
 	return article, msg.SUCCESS
 }
+
+// 删除文章
+func DeleteArticle(ids []uint) int {
+	// 开启事务
+	tx := db.Begin()
+	// 确保事务最后一定会提交或回滚
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
+	// 检查是否有这些文章存在
+	var count int64
+	if err := tx.Model(&Article{}).Where("id IN ?", ids).Count(&count).Error; err != nil || count == 0 {
+		tx.Rollback()
+		return msg.ERROR
+	}
+
+	// 先删除关联表中的数据
+	if err := tx.Table("article_categories").Where("article_id IN ?", ids).Delete(nil).Error; err != nil {
+		tx.Rollback()
+		return msg.ERROR
+	}
+	// 删除文章
+	if err := tx.Where("id In ?", ids).Unscoped().Delete(&Article{}).Error; err != nil {
+		tx.Rollback()
+		return msg.ERROR
+	}
+	// 所有操作都成功，提交事务
+	if err := tx.Commit().Error; err != nil {
+		return msg.ERROR
+	}
+
+	return msg.SUCCESS
+}

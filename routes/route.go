@@ -19,6 +19,8 @@ func InitRouter() *gin.Engine {
 		article.POST("/add", controller.CreateArticle)
 		// 获取单一文章
 		article.GET("/:id", controller.GetArticle)
+		// 删除文章
+		article.POST("/delete", controller.DeleteArticle)
 	}
 
 	category := r.Group("/api/category")

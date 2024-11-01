@@ -63,12 +63,37 @@ func EditCategory(id uint, name string) int {
 	return msg.SUCCESS
 }
 
-// DeleteCate 删除分类
+// DeleteCate 删除分类 单个删除
 func DeleteCategory(id uint) int {
-	var category Category
+	// 开启事务
+	tx := db.Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
+	// 检查分类是否存在
+	var count int64
+	if err := tx.Model(&Category{}).Where("id = ?", id).Count(&count).Error; err != nil || count == 0 {
+		tx.Rollback()
+		return msg.ERROR
+	}
+
+	// 先删除关联表中的数据
+	if err := tx.Table("article_categories").Where("category_id = ?", id).Delete(nil).Error; err != nil {
+		tx.Rollback()
+		return msg.ERROR
+	}
+
 	// 需要硬删除
-	err = db.Where("id = ? ", id).Unscoped().Delete(&category).Error
-	if err != nil {
+
+	if err := tx.Where("id = ? ", id).Unscoped().Delete(&Category{}).Error; err != nil {
+		tx.Rollback()
+		return msg.ERROR
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		tx.Rollback()
 		return msg.ERROR
 	}
 	return msg.SUCCESS

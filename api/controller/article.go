@@ -83,3 +83,29 @@ func GetArticle(c *gin.Context) {
 		})
 	}
 }
+
+// 批量删除文章
+func DeleteArticle(c *gin.Context) {
+	var deleteReqBody struct {
+		Ids []uint `json:"ids"`
+	}
+	if err := c.ShouldBindJSON(&deleteReqBody); err != nil || len(deleteReqBody.Ids) == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code":    msg.ERROR,
+			"message": "无效的请求参数",
+		})
+		return
+	}
+	code := model.DeleteArticle(deleteReqBody.Ids)
+	if code == msg.ERROR {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    code,
+			"message": msg.GetMsg(code),
+		})
+	} else {
+		c.JSON(http.StatusOK, gin.H{
+			"code":    code,
+			"message": msg.GetMsg(code),
+		})
+	}
+}
