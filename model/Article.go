@@ -1,12 +1,19 @@
 package model
 
 import (
+	"time"
+
 	"github.com/GeekMinder/my-blog-go/utils/msg"
 	"gorm.io/gorm"
 )
 
 type Article struct {
-	gorm.Model
+	// id
+	ID uint `gorm:"primary_key" json:"id"`
+	// 创建时间
+	CreatedAt time.Time `gorm:"autoCreateTime" json:"created_at"`
+	// 更新时间
+	UpdatedAt time.Time `gorm:"autoUpdateTime" json:"updated_at"`
 	// 标题
 	Title string `json:"title" gorm:"type:varchar(100);not null"`
 	// 内容
@@ -31,18 +38,35 @@ type ArticleCreate struct {
 }
 
 // 获取文章列表
-func GetArticleList(pageSize int, pageNum int) ([]Article, int, int64) {
+func GetArticleList(pageSize int, pageNum int, categoryId uint) ([]Article, int, int64) {
 	var articleList []Article
 	var err error
 	var total int64
-	err = db.Preload("Categories", func(db *gorm.DB) *gorm.DB {
+
+	query := db.Preload("Categories", func(db *gorm.DB) *gorm.DB {
 		return db.Select("id", "name")
-	}).
+	})
+
+	// 如果提供了分类ID，添加分类过滤条件
+	if categoryId > 0 {
+		query = query.Joins("JOIN article_categories ON articles.id = article_categories.article_id").
+			Where("article_categories.category_id = ?", categoryId)
+	}
+
+	err = query.
 		Limit(pageSize).
 		Offset((pageNum - 1) * pageSize).
 		Order("created_at DESC").
 		Find(&articleList).Error
-	db.Model(&Article{}).Count(&total)
+
+	// 计算总数时也需要考虑分类过滤
+	countQuery := db.Model(&Article{})
+	if categoryId > 0 {
+		countQuery = countQuery.Joins("JOIN article_categories ON articles.id = article_categories.article_id").
+			Where("article_categories.category_id = ?", categoryId)
+	}
+	countQuery.Count(&total)
+
 	if err != nil {
 		return nil, msg.ERROR, 0
 	}

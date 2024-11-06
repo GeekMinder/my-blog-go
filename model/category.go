@@ -1,12 +1,20 @@
 package model
 
 import (
+	"time"
+
 	"github.com/GeekMinder/my-blog-go/utils/msg"
 	"gorm.io/gorm"
 )
 
 type Category struct {
-	gorm.Model
+	// id
+	ID uint `gorm:"primary_key" json:"id"`
+	// 创建时间
+	CreatedAt time.Time `gorm:"autoCreateTime" json:"created_at"`
+	// 更新时间
+	UpdatedAt time.Time `gorm:"autoUpdateTime" json:"updated_at"`
+	// 分类名称
 	Name string `gorm:"type:varchar(20);not null" json:"name"`
 }
 

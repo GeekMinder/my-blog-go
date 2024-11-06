@@ -10,10 +10,11 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// 查询文章列表
+// 查询文章列表 可以通过categoryid查询
 func GetArticleList(c *gin.Context) {
 	pageSize, _ := strconv.Atoi(c.Query("pageSize"))
 	pageNum, _ := strconv.Atoi(c.Query("pageNum"))
+	categoryId, _ := strconv.Atoi(c.Query("categoryId"))
 
 	switch {
 	case pageSize >= 10:
@@ -26,7 +27,7 @@ func GetArticleList(c *gin.Context) {
 		pageNum = 1
 	}
 
-	data, code, total := model.GetArticleList(pageSize, pageNum)
+	data, code, total := model.GetArticleList(pageSize, pageNum, uint(categoryId))
 	if code == msg.ERROR {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"data":    nil,
@@ -54,12 +55,12 @@ func CreateArticle(c *gin.Context) {
 	code := model.CreateArticle(&data)
 	if code == msg.ERROR {
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"status":  code,
+			"code":    code,
 			"message": msg.GetMsg(code),
 		})
 	} else {
 		c.JSON(http.StatusOK, gin.H{
-			"status":  code,
+			"code":    code,
 			"message": msg.GetMsg(code),
 		})
 	}
