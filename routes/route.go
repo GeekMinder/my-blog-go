@@ -35,5 +35,12 @@ func InitRouter() *gin.Engine {
 		category.POST("/delete", controller.DeleteCategory)
 	}
 
+	auth := r.Group("/api/auth")
+	{
+		// 注册
+		auth.POST("/signup", controller.SignUp)
+		// 登录
+		auth.POST("/login", controller.Login)
+	}
 	return r
 }

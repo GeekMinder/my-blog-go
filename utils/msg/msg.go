@@ -11,6 +11,11 @@ const (
 	// 分类
 	ERROR_CATEGORY_EXIST     = 3001
 	ERROR_CATEGORY_NOT_EXIST = 3002
+
+	// 登录
+	ERROR_USER_NOT_EXIST = 4011
+	ERROR_PASSWORD_WRONG = 4012
+	ERROR_USERNAME_USED  = 4013
 )
 
 var codeMsg = map[int]string{
@@ -24,6 +29,11 @@ var codeMsg = map[int]string{
 	// 分类
 	ERROR_CATEGORY_EXIST:     "该分类已存在",
 	ERROR_CATEGORY_NOT_EXIST: "该分类不存在",
+
+	// 登录
+	ERROR_USER_NOT_EXIST: "用户不存在",
+	ERROR_PASSWORD_WRONG: "密码错误",
+	ERROR_USERNAME_USED:  "用户名已存在",
 }
 
 func GetMsg(code int) string {

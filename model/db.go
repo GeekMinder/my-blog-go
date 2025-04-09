@@ -32,6 +32,8 @@ func InitDB() {
 		&Article{},
 		// 分类
 		&Category{},
+		// 登录
+		&Auth{},
 	)
 	if err != nil {
 		panic("自动迁移失败: " + err.Error())
