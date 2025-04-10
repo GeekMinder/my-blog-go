@@ -7,7 +7,10 @@ require (
 	github.com/lestrrat-go/file-rotatelogs v2.4.0+incompatible
 )
 
-require github.com/sirupsen/logrus v1.9.3 // indirect
+require (
+	github.com/golang-jwt/jwt/v5 v5.2.2 // indirect
+	github.com/sirupsen/logrus v1.9.3 // indirect
+)
 
 require (
 	github.com/bytedance/sonic v1.12.3 // indirect

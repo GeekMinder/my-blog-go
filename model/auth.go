@@ -3,6 +3,7 @@ package model
 import (
 	"time"
 
+	"github.com/GeekMinder/my-blog-go/utils/jwt"
 	"github.com/GeekMinder/my-blog-go/utils/msg"
 	"github.com/GeekMinder/my-blog-go/utils/pwd"
 	"gorm.io/gorm"
@@ -65,22 +66,27 @@ func SignUp(username string, password string) int {
 }
 
 // 登录
-func Login(username string, password string) (int, Auth) {
+func Login(username string, password string) (int, Auth, string) {
 	var userInfo Auth
 	result := db.Where("username =?", username).First(&userInfo)
 	if result.Error == gorm.ErrRecordNotFound {
 		// 用户名不存在
-		return msg.ERROR_USER_NOT_EXIST, Auth{}
+		return msg.ERROR_USER_NOT_EXIST, Auth{}, ""
 	}
 
 	// 验证密码
 	if isCorrect := pwd.ValidatePassword(password, userInfo.Password); isCorrect == false {
-		return msg.ERROR_PASSWORD_WRONG, Auth{}
+		return msg.ERROR_PASSWORD_WRONG, Auth{}, ""
+	}
+
+	token, err := jwt.GenerateToken(userInfo.Username, userInfo.Role)
+	if err != nil {
+		return msg.ERROR, Auth{}, ""
 	}
 
 	// 更新最后登录时间
 	userInfo.LastLogin = time.Now()
 	db.Save(&userInfo)
 
-	return msg.SUCCESS, userInfo
+	return msg.SUCCESS, userInfo, token
 }

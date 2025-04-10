@@ -37,29 +37,32 @@ func SignUp(c *gin.Context) {
 }
 
 func Login(c *gin.Context) {
-	var requestBody struct {
+	var loginData struct {
 		Username string `json:"username"`
 		Password string `json:"password"`
 	}
-	if err := c.ShouldBindJSON(&requestBody); err != nil {
+	if err := c.ShouldBindJSON(&loginData); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "请求有误"})
 		return
 	}
-	if requestBody.Username == "" || requestBody.Password == "" {
+	if loginData.Username == "" || loginData.Password == "" {
 		c.JSON(http.StatusOK, gin.H{
 			"code":    msg.ERROR,
 			"message": msg.GetMsg(msg.ERROR),
 		})
 		return
 	}
-	code, info := model.Login(requestBody.Username, requestBody.Password)
+	code, info, token := model.Login(loginData.Username, loginData.Password)
 	if code == msg.SUCCESS {
 		c.JSON(http.StatusOK, gin.H{
 			"code":    code,
 			"message": msg.GetMsg(code),
 			"data": gin.H{
-				"user": info.Username,
-				"role": info.Role,
+				"user": gin.H{
+					"username": info.Username,
+					"role":     info.Role,
+				},
+				"token": token,
 			},
 		})
 	} else {
