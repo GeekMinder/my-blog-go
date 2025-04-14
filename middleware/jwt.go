@@ -39,3 +39,9 @@ func JwtAuth() gin.HandlerFunc {
 		c.Next()
 	}
 }
+
+func FrontAuth() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.Next()
+	}
+}

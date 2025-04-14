@@ -14,6 +14,7 @@ type Config struct {
 		User     string
 		Password string
 		DBName   string
+		SSLMode  string // 添加 SSL 模式配置
 	}
 	Server struct {
 		Port int
@@ -31,7 +32,7 @@ func LoadConfig() error {
 	viper.AutomaticEnv() // 读取匹配的环境变量
 
 	// 设置默认值
-	viper.SetDefault("database.host", "localhost")
+	viper.SetDefault("database.host", "database.host")
 	viper.SetDefault("server.port", 8080)
 
 	if err := viper.ReadInConfig(); err != nil {

@@ -13,12 +13,14 @@ var db *gorm.DB
 var err error
 
 func InitDB() {
-	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%d sslmode=disable TimeZone=Asia/Shanghai",
+	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%d sslmode=%s TimeZone=Asia/Shanghai",
 		config.AppConfig.Database.Host,
 		config.AppConfig.Database.User,
 		config.AppConfig.Database.Password,
 		config.AppConfig.Database.DBName,
-		config.AppConfig.Database.Port)
+		config.AppConfig.Database.Port,
+		config.AppConfig.Database.SSLMode,
+	)
 
 	db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {

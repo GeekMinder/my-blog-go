@@ -11,7 +11,27 @@ func InitRouter() *gin.Engine {
 	// 这里是中间件
 	r.Use(middleware.Cors())
 
-	public := r.Group("/api")
+	// 展示路由
+	front := r.Group("/api/v1")
+	front.Use(middleware.FrontAuth())
+	{
+		// 文章展示相关
+		article := front.Group("/article")
+		{
+			article.GET("", controller.GetArticleList)
+			article.GET("/:id", controller.GetArticle)
+		}
+
+		// 分类展示相关
+		category := front.Group("/category")
+		{
+			category.GET("", controller.GetCategory)
+		}
+
+	}
+
+	// 认证
+	public := r.Group("/api/admin")
 	{
 		auth := public.Group("/auth")
 		{
@@ -22,8 +42,8 @@ func InitRouter() *gin.Engine {
 		}
 	}
 
-	// 这里是需要鉴权的路由
-	private := r.Group("/api")
+	// 这里是需要鉴权的路由 中台用到的
+	private := r.Group("/api/admin")
 	private.Use(middleware.JwtAuth())
 	{
 
